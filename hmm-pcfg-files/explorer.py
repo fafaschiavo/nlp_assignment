@@ -42,6 +42,8 @@ equally_distributed_probability = math.log10(equally_distributed_probability)
 
 # use emits and trans (use 'sentence_boundary' for key to sentence beginnig/end)
 
+print emits['w']
+
 tokenized_sentences = []
 for line in sentences_to_tag:
 	current_line = line.split('\n')[0].split(' ')
