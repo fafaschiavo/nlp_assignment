@@ -85,10 +85,12 @@ for pre_terminal in total_pre_terminals:
 for sentence in tokenized_sentences[2:3]:
 	number_of_words = len(sentence)
 	matrix = [[0 for x in range(number_of_words)] for y in range(number_of_words)]
+	pi = [[0 for x in range(number_of_words)] for y in range(number_of_words)]
 	for x in xrange(0,number_of_words):
 		word = sentence[x]
 		if  word in branches_reversed:
 			origins = branches_reversed[word]
+			print origins
 		else:
 			origins = average_probability_dict.copy()
 		matrix[x][x] = origins.keys()
@@ -122,50 +124,6 @@ for s in xrange(2,number_of_words+1):
 	# 		break
 	# 	break
 	# break
-
-print i
-print j
-print s
-
-print number_of_words
-
-# print matrix[0]
-# print matrix[0][1-1]
-# print matrix[1][2-1]
-# print matrix[0][2-1]
-
-
-print '------------'
-print len(matrix[0][number_of_words-1])
-
-# print matrix[0]
-
-
-# 01
-# 12
-# 23
-# 34
-# 45
-
-# 02
-# 13
-# 24
-# 35
-
-# .
-# .
-# .
-
-# 05
-
-# for i in xrange(0,number_of_words-1):
-# 	for j in xrange(i+2,number_of_words):
-# 		for s in xrange(i,j):
-# 			pass
-# 		print '%d %d' % (i, j)
-
-# for x in xrange(0,len(matrix)):
-# 	print matrix[x]
 
 
 
