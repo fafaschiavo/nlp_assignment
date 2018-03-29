@@ -45,7 +45,10 @@ for line in branches_raw:
 	if len(endpoints) == 2:
 		N = N + endpoints
 		nonterminal_prob[origin][endpoints[0]][endpoints[1]] = float(probability)
-		binary_rules[origin] = [endpoints[0], endpoints[1]]
+		if origin in binary_rules:
+			binary_rules[origin].append([endpoints[0], endpoints[1]])
+		else:
+			binary_rules[origin] = [[endpoints[0], endpoints[1]]]
 	else:
 		E = E + endpoints
 		terminal_prob[origin][endpoints[0]] = float(probability)
@@ -80,21 +83,21 @@ for x in tokenized_sentences[2:3]:
 				max_score = 0
 				args = None
 				if X in binary_rules:
-					Y, Z = binary_rules[X]
-					print binary_rules[X]
-					for s in xrange(i, j):
-						if pi[i, s, Y] and pi[s + 1, j, Z]:
-							score = q(X, Y, Z) * pi[i, s, Y] * pi[s + 1, j, Z]
-							if score > max_score:
-								max_score = score
-								args = Y, Z, s
+					for rule in binary_rules[X]:
+						Y, Z = rule
+						for s in xrange(i, j):
+							if pi[i, s, Y] and pi[s + 1, j, Z]:
+								score = q(X, Y, Z) * pi[i, s, Y] * pi[s + 1, j, Z]
+								if score > max_score:
+									max_score = score
+									args = Y, Z, s
 				if max_score:
 					pi[i, j, X] = max_score
 					bp[i, j, X] = args
 
 
 	# for key in pi:
-	# 	if key[0] == 0 and key[1] == (n-2):
+	# 	if key[0] == 0 and key[1] == (n-1):
 	# 		# print '%d | %d' % (key[0], key[1])
 	# 		print key[2]
 
@@ -102,17 +105,17 @@ for x in tokenized_sentences[2:3]:
 	# 	print line
 
 
-	# if pi[0, n-1, 'S']:
-	# 	print 'There you go...'
-	# 	print recover_tree(x, bp, 0, n-1, 'S')
-	# else:
-	# 	max_score = 0
-	# 	args = None
-	# 	for X in N:
-	# 		if max_score < pi[0, n-1, X]:
-	# 			max_score = pi[0, n-1, X]
-	# 			args = 0, n-1, X
-	# 	print 'There you go...'
-	# 	print recover_tree(x, bp, *args)
+	if pi[0, n-1, 'S']:
+		print 'There you go...'
+		print recover_tree(x, bp, 0, n-1, 'S')
+	else:
+		max_score = 0
+		args = None
+		for X in N:
+			if max_score < pi[0, n-1, X]:
+				max_score = pi[0, n-1, X]
+				args = 0, n-1, X
+		print 'There you go...'
+		print recover_tree(x, bp, *args)
 
 
