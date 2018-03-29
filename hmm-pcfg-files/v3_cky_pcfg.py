@@ -16,7 +16,14 @@ def q(x, y1, y2):
 	return nonterminal_prob[x][y1][y2]
 
 def q_unary(x, w):
+	global E
+	global semi_terminals
 	global terminal_prob
+
+	if w not in terminal_prob[x] and w not in E:
+		if x in semi_terminals:
+			return 1
+
 	return terminal_prob[x][w]
 
 def recover_tree(x, bp, i, j, X):
@@ -33,6 +40,7 @@ terminal_prob = defaultdict(lambda: defaultdict(float))
 
 N = []
 E = []
+semi_terminals = []
 binary_rules = {}
 for line in branches_raw:
 	current_line = line.split('\n')[0].split('	')
@@ -51,10 +59,12 @@ for line in branches_raw:
 			binary_rules[origin] = [[endpoints[0], endpoints[1]]]
 	else:
 		E = E + endpoints
+		semi_terminals.append(origin)
 		terminal_prob[origin][endpoints[0]] = float(probability)
 
 N = list(set(N))
 E = list(set(E))
+semi_terminals = list(set(semi_terminals))
 
 tokenized_sentences = []
 for line in sentences_to_tag:
@@ -64,12 +74,13 @@ for line in sentences_to_tag:
 # N - Total non-terminal (non-words) array
 # E - Toal terminal (words) array
 # x - sentence
-for x in tokenized_sentences[2:3]:
+current_sentence = 0
+for x in tokenized_sentences:
+	print 'Now analysing: ' + str(current_sentence)
+	current_sentence = current_sentence + 1
 	n = len(x)
 	pi = defaultdict(float)
 	bp = {}
-
-	# pass_by_check = [[0 for j in xrange(n)] for i in xrange(n)]
 
 	for i in xrange(n):
 		w = x[i]
@@ -95,19 +106,9 @@ for x in tokenized_sentences[2:3]:
 					pi[i, j, X] = max_score
 					bp[i, j, X] = args
 
-
-	# for key in pi:
-	# 	if key[0] == 0 and key[1] == (n-1):
-	# 		# print '%d | %d' % (key[0], key[1])
-	# 		print key[2]
-
-	# for line in pass_by_check:
-	# 	print line
-
-
 	if pi[0, n-1, 'S']:
 		print 'There you go...'
-		print recover_tree(x, bp, 0, n-1, 'S')
+		recover_tree_array = recover_tree(x, bp, 0, n-1, 'S')
 	else:
 		max_score = 0
 		args = None
@@ -116,6 +117,15 @@ for x in tokenized_sentences[2:3]:
 				max_score = pi[0, n-1, X]
 				args = 0, n-1, X
 		print 'There you go...'
-		print recover_tree(x, bp, *args)
+		recover_tree_array = recover_tree(x, bp, *args)
 
+	recover_tree_string = str(recover_tree_array).replace('[', '(').replace(']', ')').replace("u'", ' ').replace("'", ' ').replace(',', '').replace('  ', ' ').replace('   ', ' ').replace('))', ') )').replace('))', ') )')
+	print recover_tree_string
 
+	if os.path.exists('test_postags_pcfg'):
+		append_write = 'a'
+	else:
+		append_write = 'w'
+	file = open('test_postags_pcfg', append_write)
+	file.write(recover_tree_string + '\n')
+	file.close()
