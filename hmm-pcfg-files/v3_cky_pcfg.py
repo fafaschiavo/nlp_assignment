@@ -28,12 +28,13 @@ def q_unary(x, w):
 
 def recover_tree(x, bp, i, j, X):
 	if i == j:
-		return [X, x[i]]
+		return '( ' + X.encode("utf-8") + ' ' + x[i].encode("utf-8") + ' )'
 	else:
 		Y, Z, s = bp[i, j, X]
-		return [X, recover_tree(x, bp, i, s, Y), recover_tree(x, bp, s+1, j, Z)]
+		return '( ' + X.encode("utf-8") + ' ' + recover_tree(x, bp, i, s, Y) + ' ' + recover_tree(x, bp, s+1, j, Z) + ' )'
 
 sentences_to_tag = io.open('test_sents')
+# sentences_to_tag = io.open('dev_sents')
 branches_raw = io.open('pcfg')
 nonterminal_prob = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
 terminal_prob = defaultdict(lambda: defaultdict(float))
@@ -119,7 +120,7 @@ for x in tokenized_sentences:
 		print 'There you go...'
 		recover_tree_array = recover_tree(x, bp, *args)
 
-	recover_tree_string = str(recover_tree_array).replace('[', '(').replace(']', ')').replace("u'", ' ').replace("'", ' ').replace(',', '').replace('  ', ' ').replace('   ', ' ').replace('))', ') )').replace('))', ') )')
+	recover_tree_string = recover_tree_array
 	print recover_tree_string
 
 	if os.path.exists('test_postags_pcfg'):
